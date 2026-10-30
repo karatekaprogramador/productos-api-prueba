@@ -377,6 +377,16 @@ docker compose exec app php artisan test --filter="ProductControllerTest|Product
 
 ---
 
+## Decisiones de diseño
+
+- **Laravel y Eloquent:** proporcionan el framework, las migraciones y las relaciones entre productos, divisas y precios solicitadas en la prueba.
+- **Controladores, responsables y repositorios:** los controladores reciben las rutas, los responsables coordinan las respuestas y los repositorios concentran el acceso a datos. Esta separación facilita localizar y mantener cada parte de la API.
+- **Form Requests:** centralizan la validación de los datos y los permisos de las operaciones de escritura.
+- **Sanctum y roles:** las rutas de productos requieren un token. Cualquier usuario autenticado puede listar productos; las demás operaciones comprueban sus permisos correspondientes.
+- **Soft Delete:** eliminar un producto lo oculta de la API sin borrar sus precios asociados, preservando la información para una eventual recuperación administrativa.
+- **Precios por divisa:** cada precio se registra con su producto y divisa; la carga es explícita y no depende de una conversión automática en cada solicitud.
+- **Swagger/OpenAPI:** la especificación y la interfaz interactiva permiten consultar y probar el contrato de la API.
+
 ## Estructura del Proyecto
 
 ```
