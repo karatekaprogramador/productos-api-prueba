@@ -18,7 +18,7 @@ class AuthResponsable implements Responsable
     public function toResponse($request)
     {
         $credentials = $request->validate([
-            'email_username' => ['required', 'string'],
+            'email_username' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
@@ -29,15 +29,16 @@ class AuthResponsable implements Responsable
 
     private function login(string $username, string $password)
     {
-        $field = filter_var($username, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $provider = Auth::guard('web')->getProvider();
+        $credentials = ['email' => $username, 'password' => $password];
+        $user = $provider->retrieveByCredentials($credentials);
 
-        if (!Auth::attempt([$field => $username, 'password' => $password])) {
+        if (!$user || !$provider->validateCredentials($user, $credentials)) {
             return response()->json([
                 'message' => 'Login failed',
             ], 401);
         }
 
-        $user = Auth::user();
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([

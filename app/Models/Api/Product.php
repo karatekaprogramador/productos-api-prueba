@@ -4,10 +4,12 @@ namespace App\Models\Api;
 
 use App\Models\Api\Currency\Divisas;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    //
+    use SoftDeletes;
+
     public $table = 'products';
 
     protected $fillable = [
@@ -15,6 +17,8 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'tax_cost',
+        'manufacturing_cost',
         'divisa_id',
         'created_at',
         'updated_at',

@@ -81,13 +81,11 @@ class ProductControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'products' => [
-                    'data',
-                    'current_page',
-                    'last_page',
-                    'per_page',
-                    'total',
-                ],
+                'data',
+                'current_page',
+                'last_page',
+                'per_page',
+                'total',
             ]);
     }
 
@@ -239,7 +237,7 @@ class ProductControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('message', 'Product deleted successfully.');
 
-        $this->assertDatabaseMissing('products', ['id' => $product->id]);
+        $this->assertSoftDeleted('products', ['id' => $product->id]);
     }
 
     public function test_destroy_returns_404_for_nonexistent_product(): void
