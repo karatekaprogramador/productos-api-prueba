@@ -22,7 +22,7 @@ class ProductRepository extends Repository
     public function allProducts(int $perPage = 15, int $page = 1)
     {
         return $this->model::with(self::RELATIONS)
-            ->select(['id', 'name', 'description', 'price', 'divisa_id'])
+            ->select(['id', 'name', 'description', 'price', 'tax_cost', 'manufacturing_cost', 'divisa_id'])
             ->paginate($perPage, ['*'], 'page', $page);
     }
 
@@ -41,6 +41,8 @@ class ProductRepository extends Repository
             'name' => $data['name'] ?? $product->name,
             'description' => $data['description'] ?? $product->description,
             'price' => $data['price'] ?? $product->price,
+            'tax_cost' => $data['tax_cost'] ?? $product->tax_cost,
+            'manufacturing_cost' => $data['manufacturing_cost'] ?? $product->manufacturing_cost,
             'divisa_id' => $data['divisa_id'] ?? $product->divisa_id,
         ]);
 
@@ -61,6 +63,8 @@ class ProductRepository extends Repository
             'name' => $data['name'],
             'description' => $data['description'],
             'price' => $data['price'],
+            'tax_cost' => $data['tax_cost'] ?? 0,
+            'manufacturing_cost' => $data['manufacturing_cost'] ?? 0,
             'divisa_id' => $data['divisa_id'],
         ]);
     }

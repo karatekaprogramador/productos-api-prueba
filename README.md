@@ -111,6 +111,22 @@ docker compose exec app composer dump-autoload --optimize
 
 ---
 
+## Swagger / OpenAPI
+
+Con la aplicación iniciada, abre **http://localhost:8080/api/documentation**. La especificación OpenAPI 3.0.3 también está disponible en **http://localhost:8080/openapi.json** y en el archivo [public/openapi.json](public/openapi.json).
+
+Para probar la API en Swagger UI:
+
+1. Ejecuta las migraciones y seeders descritos arriba.
+2. Abre `POST /login`, pulsa **Try it out** y envía las credenciales de prueba.
+3. Copia únicamente el valor de `token` de la respuesta.
+4. Pulsa **Authorize**, pega el token sin anteponer `Bearer` y confirma.
+5. Abre el endpoint deseado, pulsa **Try it out**, completa los datos y ejecuta la petición.
+
+Swagger UI carga sus archivos JavaScript y CSS desde jsDelivr y requiere conexión a Internet para mostrarse. El contrato JSON se sirve desde la aplicación. Mantén `public/openapi.json` actualizado cuando cambien rutas, permisos o validaciones.
+
+---
+
 ## Autenticacion
 
 La API usa **Laravel Sanctum** con Bearer Token. Todos los endpoints (excepto login) requieren autenticacion.
@@ -149,6 +165,8 @@ POST /api/logout
 Authorization: Bearer <token>
 ```
 
+Revoca el token utilizado. El login acepta correo electronico y limita las solicitudes a 5 por minuto.
+
 ### Usuarios de prueba
 
 | Email | Contrasena | Rol | Permisos |
@@ -169,12 +187,12 @@ Authorization: Bearer <token>
 ### Listar productos
 
 ```
-GET /api/products?page=1&perPage=15
+GET /api/products?page=1&per_page=15
 ```
 
-**Permiso requerido:** `products.view` (validado en el responsable)
+**Permiso requerido:** usuario autenticado (cualquier rol).
 
-**Respuesta (200):** Lista paginada de productos con informacion de paginacion (data, current_page, last_page, per_page, total).
+**Respuesta (200):** Paginador en la raiz con `data`, `current_page`, `last_page`, `per_page` y `total`. Tambien se acepta el parametro anterior `perPage`.
 
 ---
 
@@ -220,11 +238,13 @@ POST /api/products
   "name": "Nuevo Producto",
   "description": "Descripcion del producto",
   "price": 150.00,
+  "tax_cost": 15.00,
+  "manufacturing_cost": 80.00,
   "divisa_id": 1
 }
 ```
 
-**Campos opcionales:** `tax_cost`, `manufacturing_cost`
+**Campos opcionales:** `tax_cost`, `manufacturing_cost` (por defecto 0). Los importes aceptan hasta dos decimales y deben ser no negativos.
 
 **Respuesta (201):**
 
@@ -272,6 +292,8 @@ DELETE /api/products/{id}
 ```
 
 **Permiso requerido:** `products.delete`
+
+La eliminacion es logica (Soft Delete): el producto deja de aparecer en la API y sus precios se conservan en la base de datos.
 
 **Respuesta (200):**
 
@@ -335,12 +357,13 @@ POST /api/products/{id}/prices
 | `403` | No autorizado (sin permiso suficiente) |
 | `404` | Recurso no encontrado |
 | `422` | Error de validacion |
+| `429` | Limite de solicitudes excedido |
 
 ---
 
 ## Tests
 
-Ejecutar los tests unitarios:
+Ejecutar la suite de pruebas:
 
 ```bash
 docker compose exec app php artisan test

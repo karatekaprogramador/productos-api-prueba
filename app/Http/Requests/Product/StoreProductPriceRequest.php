@@ -14,7 +14,7 @@ class StoreProductPriceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'price' => ['required', 'numeric', 'min:0'],
+            'price' => ['required', 'numeric', 'decimal:0,2', 'min:0', 'max:9999999999.99'],
             'divisa_id' => ['required', 'integer', 'exists:divisas,id'],
         ];
     }
